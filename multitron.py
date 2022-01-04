@@ -2,10 +2,10 @@ import gzip, numpy, torch
 import math
 
 if __name__ == '__main__':
-    hlayer_size = 20
+    hlayer_size = 10
     batch_size = 5  # nombre de données lues à chaque fois000
     nb_epochs = 10  # nombre de fois que la base de données sera lue
-    eta = 0.00001  # taux d'apprentissage
+    eta = 0.001  # taux d'apprentissage
 
     # on lit les données
     ((data_train, label_train), (data_test, label_test)) = torch.load(gzip.open('mnist.pkl.gz'))
@@ -32,21 +32,17 @@ if __name__ == '__main__':
             # on récupère les entrées
             x = data_train[i:i + batch_size]
             # on calcule la sortie du modèle
-            y1 = 1 / (numpy.exp(-torch.mm(x, w1) + b1))  #si erreur regarder ici (ordre multiplication matrice)!
+            y1 = 1 / (1 + numpy.exp(-torch.mm(x, w1) + b1))  #si erreur regarder ici (ordre multiplication matrice)!
             y2 = torch.mm(y1, w2) + b2
 
             # on regarde les vrais labels
             t = label_train[i:i + batch_size]
             # on met à jour les poids
             delta2 = (t - y2)
-            sum = torch.mm(delta2, w2.T)
-            delta1 = 1 - y1
-            delta1 = torch.mm(delta1.T, sum)
-            delta1 = torch.mm(y1,delta1)
+            delta1 = y1 * (1 - y1) * (torch.mm(delta2, w2.T))
 
-
-            w2 += eta * torch.mm(y1.T, delta2)
             w1 += eta * torch.mm(x.T, delta1)
+            w2 += eta * torch.mm(y1.T, delta2)
             b1 += eta * delta1.sum()
             b2 += eta * delta2.sum()
 
@@ -57,7 +53,7 @@ if __name__ == '__main__':
             # on récupère l'entrée
             x = data_test[i:i + 1]
             # on calcule la sortie du modèle
-            y1 = 1 / (numpy.exp(-torch.mm(x, w1) + b1))  # si erreur regarder ici (ordre multiplication matrice)!
+            y1 = 1 / (1 + numpy.exp(-torch.mm(x, w1) + b1))  # si erreur regarder ici (ordre multiplication matrice)!
             y2 = torch.mm(y1, w2) + b2
             # on regarde le vrai label
             t = label_test[i:i + 1]
