@@ -12,6 +12,7 @@ import gzip,numpy,torch
 import gzip, numpy, torch
     
 if __name__ == '__main__':
+	hlayer_size = 10
 	batch_size = 5 # nombre de données lues à chaque fois
 	nb_epochs = 10 # nombre de fois que la base de données sera lue
 	eta = 0.00001 # taux d'apprentissage
@@ -25,7 +26,7 @@ if __name__ == '__main__':
 	test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=1, shuffle=False)
 
 	# on initialise le modèle et ses poids
-	model = torch.nn.Linear(data_train.shape[1],label_train.shape[1])
+	model = torch.nn.Linear(data_train.shape[1], label_train.shape[1])
 	torch.nn.init.uniform_(model.weight,-0.001,0.001)
 	# on initiliase l'optimiseur
 	loss_func = torch.nn.MSELoss(reduction='sum')

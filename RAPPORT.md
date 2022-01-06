@@ -32,6 +32,8 @@ w = 0.01 => 0.8551
 w = 0.1 => 0.7660
 Il faut des poids initiaux pas trop grands et pas trop petits
 
+### Question 4
 
+TODO
 
 
