@@ -1,6 +1,9 @@
 import gzip, numpy, torch
 import torch.nn as nn
 
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+print(device)
+
 class MLP(nn.Module):
     def __init__(self, input_size, hidden_size1, hidden_size2, output_size):
         super(MLP, self).__init__()
@@ -8,9 +11,9 @@ class MLP(nn.Module):
         self.relu = nn.ReLU()
         self.l2 = nn.Linear(hidden_size1, hidden_size2)
         self.l3 = nn.Linear(hidden_size2, output_size)
-        torch.nn.init.uniform_(self.l1.weight, -0.001, 0.001)
-        torch.nn.init.uniform_(self.l2.weight, -0.001, 0.001)
-        torch.nn.init.uniform_(self.l3.weight, -0.001, 0.001)
+        # torch.nn.init.uniform_(self.l1.weight, -0.001, 0.001)
+        # torch.nn.init.uniform_(self.l2.weight, -0.001, 0.001)
+        # torch.nn.init.uniform_(self.l3.weight, -0.001, 0.001)
 
     def forward(self, x):
         out = self.l1(x)
@@ -23,7 +26,10 @@ class MLP(nn.Module):
 if __name__ == '__main__':
     hlayer_size1 = 20
     hlayer_size2 = 10
-    batch_size = 5  # nombre de données lues à chaque fois
+    if str(device) == 'cuda':
+        batch_size = 256  # nombre de données lues à chaque fois
+    else:
+        batch_size = 5  # nombre de données lues à chaque fois
     nb_epochs = 10  # nombre de fois que la base de données sera lue
     eta = 0.001  # taux d'apprentissage
 
@@ -37,6 +43,7 @@ if __name__ == '__main__':
     test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=1, shuffle=False)
 
     model = MLP(data_train.shape[1], hlayer_size1, hlayer_size2, label_train.shape[1])
+    model.to(device)
 
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=eta)
@@ -44,6 +51,7 @@ if __name__ == '__main__':
     #training loop
     for n in range(nb_epochs):
         for x, t in train_loader:
+            x, t = x.to(device), t.to(device)
             y = model(x)
             loss = criterion(y, t)
             loss.backward()
@@ -53,7 +61,8 @@ if __name__ == '__main__':
 
         # testing loop
         acc = 0
-        for x,t in test_loader:
+        for x, t in test_loader:
+            x, t = x.to(device), t.to(device)
             y = model(x)
             acc += torch.argmax(y, 1) == torch.argmax(t, 1)
         print(acc/data_test.shape[0])
