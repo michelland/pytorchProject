@@ -1,6 +1,7 @@
 # Rapport TP
 ## Yohan Michelland, Victor Favre
 
+## Partie 1
 ### Question 1
 - data_train est de taille 63000,784
 - label_train est de taille 63000,10
@@ -18,7 +19,7 @@ Partie test du modèle:
 - y est la multiplication de 1,784 x 784,10 donc de dimension 1,10
 - t est de dimension 1,10
 
-
+## Partie 2
 ### Question 2
 
 eta = 0.01 => 0.0979
@@ -35,5 +36,10 @@ Il faut des poids initiaux pas trop grands et pas trop petits
 ### Question 4
 
 TODO
+
+
+## Partie 3
+
+Pour analyser l'influence du nombre et la forme des couches cachées nous avons décidé de garder un nombre fixe de neuronnes ( à 1 pres pour les cas impaire ). Nous testerons ensuite différent layout pour avec ce nombre de neuronnes.
 
 
