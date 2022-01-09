@@ -30,14 +30,14 @@ class MLP(nn.Module):
         return out
 
 if __name__ == '__main__':
-    hlayer_size1 = 2933
-    hlayer_size2 = 1466
+    hlayer_size1 = 160
+    hlayer_size2 = 80
     hlayer_size3 = 400
     hidden_size4 = 20
     if str(device) == 'cuda':
-        batch_size = 256  # nombre de données lues à chaque fois
+        batch_size = 256  # nombre de données lues à chaque fois si un GPU est utilisé
     else:
-        batch_size = 5  # nombre de données lues à chaque fois
+        batch_size = 5  # nombre de données lues à chaque fois si un cpu est utilisé
     nb_epochs = 10  # nombre de fois que la base de données sera lue
     eta = 0.001  # taux d'apprentissage
 

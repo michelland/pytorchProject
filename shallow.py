@@ -1,5 +1,4 @@
 import gzip, numpy, torch
-import math
 
 if __name__ == '__main__':
     hlayer_size = 10

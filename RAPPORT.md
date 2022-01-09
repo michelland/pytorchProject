@@ -39,9 +39,15 @@ TODO
 
 
 ## Partie 3
-Avant d elire la suite il est important de noté que les test ont été fait sut GPU.
 
-Premièrement nous alons chercher qu'elle est l'influence du nombre de neuronnes en gardant le meme layout. Nous aurons donc pour les tests suivant 2 couches cachées avec la couche 1 ayant 2 fois plus de neuronnes que le 2. 
+Nous avons effectué les tests avec les hyper-paramètres suivant:
+`batch_size = 256`, `nb_epochs = 10`, `eta = 0.001`
+De plus, pour réaliser tous nos tests, nous avons utilisé la méthode de gradient Adam, une fonction d'activation ReLU, et la fonction de coût cross entropie.
+De plus tous ces tests ont été effectués sur GPU
+
+#### 1. Couches
+
+Premièrement nous allons chercher qu'elle est l'influence du nombre de neurones en gardant le meme layout. Nous aurons donc pour les tests suivant 2 couches cachées avec la couche 1 ayant 2 fois plus de neurones que le 2. 
 
 | Neuronnes total | Couche 1 | Couche 2 | Score |
 | --- | ----------- | ---------| ------ |
@@ -56,7 +62,7 @@ On remarque donc comme attendu que plus le nombre de neuronnes augmente plus le 
 
 Pour analyser de la forme des couches cachées nous avons décidé de garder un nombre fixe de neuronnes ( à 1 près pour les cas impaire ). Nous testerons ensuite différent layout avec ce nombre de neuronnes.
 
-Ce nombre a decidé d'etre fixé arbitrairement a 240. Il a été choisi pour nous permettre d'augmenté le nombre de couches en evitant que c'elle ci n'est un nombre trop faible de neuronnes et aussi car d'apres nos test précedant il obtient un score raisonablement haut et permetra de distinguer plus facilement l'influence du layout
+Nous avons fixé arbitrairement ce nombre a 240. Il a été choisi pour nous permettre d'augmenter le nombre de couches en évitant que celle-ci n'ait un nombre trop faible de neurones et aussi car d'apres nos tests précédant il obtient un score raisonnablement haut et permettra de distinguer plus facilement l'influence du layout
 
 Nous allons d'abord étudier comme les repartition des neuronnes dans les couches de notre layout de test incluence le score
 
@@ -80,15 +86,75 @@ Nous allons mainteant modifier le nombre de couches et la répartions des neuron
 | 3 couches | 120  / 80 / 60 | 97.37
 | 4 couches | 80 / 80 / 40 / 20 | 96.99
 
-On remarque que l'ajout de couches nous est plutot détrimentale. Aucune des version avec 3 couches ou 4 n'arrive a égaler le score obtenue avec 2 couches.
+On remarque que l'ajout de couches nous est plutôt négatif. Aucune des versions avec 3 couches ou 4 n'arrive à égaler le score obtenu avec 2 couches.
 
-Nous souhaitions finalement verifier si a diminution des scores vennait du nombre de couches ou d'un nombre de neuronnes peut etre trop faible pour prendre avantage de plus couche. Nous avons donc choisi le meilleur layout 3 couches et 2 couches et les avons testé avec 
+Nous souhaitions finalement verifier si a diminution des scores venait du nombre de couches ou d'un nombre de neurones peut-être trop faible pour prendre avantage de plus de couches. Nous avons donc choisi les meilleurs layouts 3 couches et 2 couches et les avons testé avec ~4400 neurones
 
-| Layout | répartition des Neuronne | Score |
+| Layout | répartition des Neurones | Score |
 | :---: | :-----------: | :------: |
 | 2 couches | 2933 / 1466 | 98.45
 | 3 couches | 3200  / 800 / 400 | 98.35
 
-On peux conclure que layout avec 2 couches est plus intéressant que des layout avec plus de couches. Cependant on remarque une diminution des difference avec une augmentation du nombres de neuronnes
+On peut conclure que layout avec 2 couches est plus intéressant que des layout avec plus de couches. Cependant, on remarque une diminution des differences avec une augmentation du nombre de neurones
 
+#### 2. Learning rate
+
+Pour tester l'influence du Learning rate nous allons nous baser sur le meilleur layout précédant avec 240 neurones.
+
+| Learning rate | Score |
+| :---: | :------: |
+| 0.1 | 56.93
+| 0.01 | 97.56
+| 0.001 | 97.89
+| 0.0001 | 94.26
+
+On en déduit que le learning rate ne doit pas être trop bas ou trop haut. Dans notre cas 0.001 donne les meilleurs résultats. Nous supposons que la raison de la baisse de gains pour un learning rate de 0.0001 est du a une combinaison d'un nombre de neurones et d'époques trop faible
+
+Pour verifier notre hypothèse, nous allons effectuer les memes tests avec un nombre de neurones (4399) ou d'époque (50) plus élevé. 
+
+Test avec 4399 neurones :
+
+| Learning rate | Score |
+| :---: | :------: |
+| 0.1 | 10.07
+| 0.01 | 97.37
+| 0.001 | 98.21
+| 0.0001 | 98.14
+
+Test avec 100 epoques :
+
+| Learning rate | Score |
+| :---: | :------: |
+| 0.1 | 10.02
+| 0.01 | 97.94
+| 0.001 | 98.13
+| 0.0001 | 97.56
+
+D'après les tests la modification d'un seul des paramètres à modifier dans notre hypothèse entraine dans les deux cas un gain de précision.
+
+Maintenant vérifions si nous mélangeons les deux :
+
+| Learning rate | Score |
+| :---: | :------: |
+| 0.001 | 98.79
+| 0.0001 | 98.60
+
+Suite à cette fusion, nous remarquons une amélioration qui est largement supérieur a l'un ou a l'autre des cas ce qui valide que l'un et l'autre on individuellement ou conjointement un impact positif sur le score.
+
+#### 3. Poids
+
+Dans ces tests, il a été utilisé le layout de base (2 couches 160/80) ainsi que des poids identiques sur chaque couche.
+
+
+| Poids_max | Score |
+| :---: | :------: | 
+| 1 | 92.19
+| 0.1 | 97.69
+| 0.01 | 97.14
+| 0.001 | 96.43
+| 0.0001 | 96.52
+
+Nous remarquons donc que les poids ont une influence importante sur le score et que, comme le learning rate, un choix de poids judicieux (ni trop haut ou ni trop bas) est nécessaire.
+
+De plus les poids ici initialisés obtiennent tous des scores inférieurs a ceux attribué par défaut par pytorch.
 
