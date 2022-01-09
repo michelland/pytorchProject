@@ -35,8 +35,49 @@ Il faut des poids initiaux pas trop grands et pas trop petits
 
 ### Question 4
 
-TODO
+Nous avons effectué les tests avec les hyper-paramètres suivant:
+`batch_size = 5`, `nb_epochs = 10`, `eta = 0.001`, `hlayer_size = 40`
+Une analyse plus approfondie a été faire dans la partie 3 sur le Deep Network, pour éviter une redondance
 
+#### 1. Couches
+Nous avons tout d'abord testé l'influence du nombre de neurones dans la couche cachée.
+
+| Neurones total | Score |
+| :---: | :-----------: |
+| 10 | 93.49
+| 20 | 96.26
+| 40 | 96.90
+| 80 | 97.83
+
+On remarque qu'une grande quantité de neurones améliore les performances du modèle, mais au prix d'un apprentissage plus long
+
+#### 2. Learning rate
+
+Nous avons ensuite testé l'influence du taux d'apprentissage.
+
+| Learning rate | Score |
+| :---: | :------: |
+| 0.1 | 16.93
+| 0.01 | 93.10
+| 0.001 | 96.84
+| 0.0001 | 96.16
+
+Un learning rate de 0.001 semble approprié
+
+#### 3. Poids
+
+Nous avons ensuite testé l'influence des poids initiaux. Les poids sont réparti uniformément entre
+- Poids_max et + Poids_max.
+
+| Poids_max | Score |
+| :---: | :------: | 
+| 1 | 96.79
+| 0.1 | 97.10
+| 0.01 | 96.67
+| 0.001 | 96.49
+| 0.0001 | 80.71
+
+La répartition appropriée des poids initiaux semble être entre -0.01 et +0.01
 
 ## Partie 3
 
@@ -49,35 +90,35 @@ De plus tous ces tests ont été effectués sur GPU
 
 Premièrement nous allons chercher qu'elle est l'influence du nombre de neurones en gardant le meme layout. Nous aurons donc pour les tests suivant 2 couches cachées avec la couche 1 ayant 2 fois plus de neurones que le 2. 
 
-| Neuronnes total | Couche 1 | Couche 2 | Score |
-| --- | ----------- | ---------| ------ |
+| Neurones total | Couche 1 | Couche 2 | Score |
+| :---: | :-----------: | :---------: | :------: |
 | 30 | 20 | 10 | 94.24
 | 60 | 40 | 20 | 96.17
 | 120 | 80 | 40 | 97.36
 | 240 | 160 | 80 | 97.89
 | 240 | 1280 | 640 | 98.10
 
-On remarque donc comme attendu que plus le nombre de neuronnes augmente plus le score augmente. On remarque aussi que le gain de score n'est pas linerairement lié au nombre de neuronnes et diminue progressivement plus ceux-ci augmentent en nombre.
+On remarque donc comme attendu que plus le nombre de neurones augmente plus le score augmente. On remarque aussi que le gain de score n'est pas linéairement lié au nombre de neurones et diminue progressivement plus ceux-ci augmentent en nombre.
 
 
-Pour analyser de la forme des couches cachées nous avons décidé de garder un nombre fixe de neuronnes ( à 1 près pour les cas impaire ). Nous testerons ensuite différent layout avec ce nombre de neuronnes.
+Pour analyser de la forme des couches cachées nous avons décidé de garder un nombre fixe de neurones (à 1 près pour les cas impaires). Nous testerons ensuite différent layout avec ce nombre de neurones.
 
 Nous avons fixé arbitrairement ce nombre a 240. Il a été choisi pour nous permettre d'augmenter le nombre de couches en évitant que celle-ci n'ait un nombre trop faible de neurones et aussi car d'apres nos tests précédant il obtient un score raisonnablement haut et permettra de distinguer plus facilement l'influence du layout
 
-Nous allons d'abord étudier comme les repartition des neuronnes dans les couches de notre layout de test incluence le score
+Nous allons d'abord étudier comment la repartition des neurones dans les couches de notre layout de test influence le score
 
-| Layout | répartition des Neuronne | Score |
+| Layout | répartition des Neurone | Score |
 | :---: | :-----------: | :------: |
 | 2 couches | 160 / 80 | 97.89
 | 2 couches | 220 / 20 | 97.80
 | 2 couches | 120 / 120 | 97.78
 | 2 couches | 80 / 160 | 97.25
 
-Nous remarquons qu'il est préférable pour une couche n+1 d'avoir autant ou moins de neuronnes que la couche n
+Nous remarquons qu'il est préférable pour une couche n+1 d'avoir autant ou moins de neurones que la couche n
 
-Nous allons mainteant modifier le nombre de couches et la répartions des neuronnes.
+Nous allons maintenant modifier le nombre de couches et la répartition des neurones.
 
-| Layout | répartition des Neuronne | Score |
+| Layout | répartition des Neurone | Score |
 | :---: | :-----------: | :------: |
 | 3 couches | 140  / 80 / 20 | 97.61
 | 3 couches | 180  / 20 / 20 | 97.2
